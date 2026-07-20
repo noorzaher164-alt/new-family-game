@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لعبة العيلة الحلوة 🎀</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@500;600;700;800&family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pink:#FF5FA2;
+    --pink-deep:#E8407F;
+    --purple:#8B5CF6;
+    --mint:#20B8A6;
+    --sun:#FFB020;
+    --maroon:#C2185B;
+    --plum:#3A1F5D;
+    --cream:#FFF8F0;
+    --card:#FFFFFF;
+    --teamA:#FF5FA2;
+    --teamA-deep:#C63B78;
+    --teamB:#7A4FE0;
+    --teamB-deep:#5B34B0;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    min-height:100vh;
+    font-family:'Cairo',sans-serif;
+    background:
+      radial-gradient(circle at 15% 20%, rgba(255,95,162,0.20), transparent 40%),
+      radial-gradient(circle at 85% 15%, rgba(139,92,246,0.20), transparent 40%),
+      radial-gradient(circle at 50% 90%, rgba(255,176,32,0.18), transparent 45%),
+      linear-gradient(160deg, #FFEFF7 0%, #F3EBFF 45%, #FFF8E8 100%);
+    color:var(--plum);
+    overflow-x:hidden;
+  }
+  .wrap{max-width:780px; margin:0 auto; padding:26px 18px 60px;}
+
+  /* ---------- Header ---------- */
+  header{text-align:center; margin-bottom:16px;}
+  .title{
+    font-family:'Baloo Bhaijaan 2', sans-serif;
+    font-weight:800;
+    font-size:clamp(26px,6vw,40px);
+    color:var(--pink-deep);
+    text-shadow: 2px 2px 0 rgba(255,255,255,0.7);
+    margin:6px 0 4px;
+  }
+  .subtitle{font-size:14.5px; color:#7A5FA0; font-weight:600; margin:0 0 10px;}
+  .emoji-row{font-size:24px; letter-spacing:8px;}
+
+  /* ---------- Scoreboard ---------- */
+  .scoreboard{
+    display:flex; gap:12px; max-width:560px; margin:0 auto 18px;
+  }
+  .team-card{
+    flex:1;
+    border-radius:22px;
+    padding:14px 12px;
+    text-align:center;
+    color:#fff;
+    position:relative;
+    box-shadow:0 8px 18px rgba(0,0,0,0.14);
+    transition:transform .2s ease;
+  }
+  .team-card.leading{transform:translateY(-4px); box-shadow:0 12px 24px rgba(0,0,0,0.20);}
+  .team-card.leading::after{
+    content:"👑"; position:absolute; top:-16px; left:50%; transform:translateX(-50%);
+    font-size:20px;
+  }
+  .teamA-card{background:linear-gradient(150deg,var(--teamA),var(--teamA-deep));}
+  .teamB-card{background:linear-gradient(150deg,var(--teamB),var(--teamB-deep));}
+  .team-name{
+    font-family:'Cairo'; font-weight:800; font-size:13px;
+    background:rgba(255,255,255,0.2); border:none; border-radius:10px;
+    color:#fff; text-align:center; width:100%; padding:4px 2px;
+    outline:none;
+  }
+  .team-name::placeholder{color:rgba(255,255,255,0.7);}
+  .team-score{
+    font-family:'Baloo Bhaijaan 2'; font-weight:800; font-size:30px;
+    margin-top:6px;
+  }
+  .team-plus{
+    margin-top:6px; display:flex; justify-content:center; gap:6px;
+  }
+  .mini-btn{
+    background:rgba(255,255,255,0.25); border:none; color:#fff;
+    width:26px; height:26px; border-radius:50%; font-size:15px; font-weight:800;
+    cursor:pointer;
+  }
+  .mini-btn:hover{background:rgba(255,255,255,0.4);}
+
+  .reset-row{text-align:center; margin-bottom:18px;}
+  .reset-btn{
+    background:var(--card); border:none; border-radius:999px; padding:8px 16px;
+    font-family:'Cairo'; font-weight:700; font-size:12.5px; color:#9A85BB;
+    cursor:pointer; box-shadow:0 3px 8px rgba(0,0,0,0.06);
+  }
+  .reset-btn:hover{color:var(--pink-deep);}
+
+  .progress-wrap{
+    background:rgba(255,255,255,0.7);
+    border-radius:20px;
+    padding:10px 16px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    max-width:420px;
+    margin:0 auto 20px;
+    box-shadow:0 4px 14px rgba(139,92,246,0.15);
+  }
+  .progress-track{flex:1; height:12px; border-radius:8px; background:#F0E4FF; overflow:hidden;}
+  .progress-fill{height:100%; border-radius:8px; background:linear-gradient(90deg,var(--pink),var(--purple)); transition:width .5s ease;}
+  .progress-label{font-weight:800; font-size:13px; color:var(--purple); white-space:nowrap;}
+
+  /* ---------- Bubble grid ---------- */
+  #grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(76px,1fr));
+    gap:14px;
+    max-width:640px;
+    margin:0 auto;
+  }
+  .bubble{
+    position:relative;
+    aspect-ratio:1/1;
+    border-radius:50%;
+    border:none;
+    cursor:pointer;
+    font-family:'Baloo Bhaijaan 2', sans-serif;
+    font-weight:700;
+    font-size:22px;
+    color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 6px 0 rgba(0,0,0,0.12), 0 8px 16px rgba(0,0,0,0.10);
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .bubble:hover{transform:translateY(-3px) scale(1.06);}
+  .bubble:active{transform:translateY(1px) scale(0.97); box-shadow:0 3px 0 rgba(0,0,0,0.12);}
+  .bubble.solved{color:#fff; box-shadow:inset 0 2px 8px rgba(0,0,0,0.18);}
+  .bubble.solved:hover{transform:none;}
+  .bubble.solved-none{
+    background:repeating-linear-gradient(135deg,#EDEBF5,#EDEBF5 8px,#E3E0EF 8px,#E3E0EF 16px) !important;
+    color:#9B93B5;
+  }
+  .bubble.solved-A{background:linear-gradient(150deg,var(--teamA),var(--teamA-deep)) !important;}
+  .bubble.solved-B{background:linear-gradient(150deg,var(--teamB),var(--teamB-deep)) !important;}
+  .bubble .check{
+    position:absolute; top:-6px; left:-6px;
+    background:#3ED598; color:#fff; border-radius:50%;
+    width:22px; height:22px; font-size:13px;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 2px 5px rgba(0,0,0,0.2);
+  }
+  footer.note{text-align:center; margin-top:26px; font-size:12.5px; color:#9A85BB;}
+
+  /* ---------- Question screen ---------- */
+  #question-screen{display:none;}
+  .qtop{display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; gap:10px;}
+  .home-btn{
+    background:var(--card); border:none; border-radius:999px; padding:10px 18px;
+    font-family:'Cairo'; font-weight:800; font-size:14px; color:var(--purple);
+    cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,0.08);
+  }
+  .home-btn:hover{transform:translateY(-2px);}
+  .chip{
+    font-family:'Baloo Bhaijaan 2'; font-weight:700; font-size:14px; color:#fff;
+    padding:8px 16px; border-radius:999px;
+  }
+
+  .mini-score{
+    display:flex; justify-content:center; gap:10px; margin-bottom:18px;
+    font-family:'Baloo Bhaijaan 2'; font-weight:700; font-size:14px;
+  }
+  .mini-score span{
+    padding:6px 14px; border-radius:999px; color:#fff;
+  }
+
+  .qcard{
+    background:var(--card);
+    border-radius:28px;
+    padding:36px 26px;
+    box-shadow:0 14px 30px rgba(139,92,246,0.18);
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+  }
+  .qcard::before{
+    content:"";
+    position:absolute; inset:0;
+    background:radial-gradient(circle at 90% -10%, rgba(255,95,162,0.10), transparent 55%);
+    pointer-events:none;
+  }
+  .qnum{
+    font-family:'Baloo Bhaijaan 2'; font-weight:800; font-size:15px;
+    color:#B79CE8; margin-bottom:10px;
+  }
+  .q-image-wrap{
+    display:none;
+    margin:0 auto 20px;
+    max-width:230px;
+    border-radius:18px;
+    overflow:hidden;
+    box-shadow:0 8px 18px rgba(139,92,246,0.20);
+    border:3px solid #fff;
+  }
+  .q-image-wrap svg{display:block; width:100%; height:auto;}
+  .qtext{
+    font-family:'Baloo Bhaijaan 2'; font-weight:600;
+    font-size:clamp(20px,4.4vw,26px);
+    line-height:1.55;
+    color:var(--plum);
+    margin:6px 0 26px;
+  }
+  .answer-box{
+    display:none;
+    background:linear-gradient(135deg,#FFF3E0,#FFE9F4);
+    border:2px dashed #FFC24D;
+    border-radius:20px;
+    padding:18px 20px;
+    margin-bottom:22px;
+    font-weight:800;
+    font-size:19px;
+    color:var(--pink-deep);
+  }
+  .answer-box .label{
+    display:block; font-family:'Baloo Bhaijaan 2'; font-size:13px; color:var(--mint);
+    margin-bottom:6px;
+  }
+  .btn-row{display:flex; flex-wrap:wrap; gap:12px; justify-content:center;}
+  .btn{
+    border:none; border-radius:999px; padding:14px 22px;
+    font-family:'Cairo'; font-weight:800; font-size:14.5px;
+    cursor:pointer; color:#fff;
+    box-shadow:0 6px 0 rgba(0,0,0,0.12);
+    transition:transform .12s ease;
+  }
+  .btn:active{transform:translateY(3px); box-shadow:0 3px 0 rgba(0,0,0,0.12);}
+  .btn-reveal{background:linear-gradient(135deg,var(--purple),#6D3FD9);}
+  .win-row{display:none; flex-wrap:wrap; gap:12px; justify-content:center;}
+  .btn-teamA{background:linear-gradient(135deg,var(--teamA),var(--teamA-deep));}
+  .btn-teamB{background:linear-gradient(135deg,var(--teamB),var(--teamB-deep));}
+  .btn-none{background:linear-gradient(135deg,#B0A8C4,#8C82A6);}
+
+  /* confetti */
+  .confetti{
+    position:fixed; top:-10px; width:10px; height:10px; border-radius:2px;
+    z-index:999; pointer-events:none;
+    animation:fall linear forwards;
+  }
+  @keyframes fall{
+    to{ transform:translateY(105vh) rotate(540deg); opacity:0.9; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .bubble, .btn, .home-btn{transition:none;}
+    .confetti{animation:none; display:none;}
+  }
+
+  /* ---------- Celebration overlay ---------- */
+  #celebration-overlay{
+    display:none;
+    position:fixed; inset:0; z-index:2000;
+    background:rgba(58,31,93,0.72);
+    align-items:center; justify-content:center;
+    padding:20px;
+  }
+  #celebration-overlay.show{display:flex;}
+  .celebration-card{
+    background:var(--card);
+    border-radius:28px;
+    padding:38px 30px;
+    text-align:center;
+    max-width:380px;
+    width:100%;
+    box-shadow:0 20px 50px rgba(0,0,0,0.35);
+    animation:pop-in .4s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes pop-in{
+    from{transform:scale(0.7); opacity:0;}
+    to{transform:scale(1); opacity:1;}
+  }
+  .celebration-emoji{font-size:56px; margin-bottom:6px;}
+  .celebration-title{
+    font-family:'Baloo Bhaijaan 2'; font-weight:800; font-size:26px;
+    color:var(--pink-deep); margin-bottom:8px;
+  }
+  .celebration-sub{
+    font-weight:700; font-size:16px; color:var(--plum); margin-bottom:14px;
+  }
+  .celebration-score{
+    font-family:'Baloo Bhaijaan 2'; font-weight:700; font-size:15px;
+    color:#7A5FA0; background:#F5F0FF; border-radius:14px; padding:10px 14px;
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- HOME SCREEN -->
+  <div id="home-screen">
+    <header>
+      <div class="emoji-row">🎀🌸💫</div>
+      <div class="title">لعبة العيلة الحلوة</div>
+      <div class="subtitle">فريقين .. تحدي .. ونقاط! يلا ابدأوا 💖</div>
+    </header>
+
+    <div class="scoreboard">
+      <div class="team-card teamA-card" id="teamA-card">
+        <input class="team-name" id="teamA-name" value="الفريق الوردي 🌸" maxlength="20" oninput="renderScores()">
+        <div class="team-score" id="teamA-score">0</div>
+        <div class="team-plus">
+          <button class="mini-btn" onclick="adjustScore('A',-1)">−</button>
+          <button class="mini-btn" onclick="adjustScore('A',1)">+</button>
+        </div>
+      </div>
+      <div class="team-card teamB-card" id="teamB-card">
+        <input class="team-name" id="teamB-name" value="الفريق البنفسجي 💜" maxlength="20" oninput="renderScores()">
+        <div class="team-score" id="teamB-score">0</div>
+        <div class="team-plus">
+          <button class="mini-btn" onclick="adjustScore('B',-1)">−</button>
+          <button class="mini-btn" onclick="adjustScore('B',1)">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="reset-row">
+      <button class="reset-btn" id="reset-btn-el" onclick="resetGame()">🔄 لعبة جديدة (تصفير كل حاجة)</button>
+    </div>
+
+    <div class="progress-wrap">
+      <span class="progress-label" id="progress-label">0 / 32</span>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    </div>
+
+    <div id="grid"></div>
+
+    <footer class="note">٣٢ سؤال حلو لكل العيلة 💕 بالتوفيق يا قمر</footer>
+  </div>
+
+  <!-- QUESTION SCREEN -->
+  <div id="question-screen">
+    <div class="qtop" style="justify-content:center;">
+      <button class="home-btn" onclick="goHome()">🏠 الرئيسية</button>
+    </div>
+
+    <div class="mini-score">
+      <span class="teamA-card" id="mini-A" style="background:var(--teamA)"></span>
+      <span class="teamB-card" id="mini-B" style="background:var(--teamB)"></span>
+    </div>
+
+    <div class="qcard">
+      <div class="qnum" id="q-num">سؤال رقم ١</div>
+      <div class="q-image-wrap" id="q-image"></div>
+      <div class="qtext" id="q-text">نص السؤال</div>
+
+      <div class="answer-box" id="answer-box">
+        <span class="label">✨ الإجابة</span>
+        <span id="answer-text"></span>
+      </div>
+
+      <div class="btn-row" id="reveal-row">
+        <button class="btn btn-reveal" id="reveal-btn" onclick="revealAnswer()">💡 اظهار الإجابة</button>
+      </div>
+
+      <div class="win-row" id="win-row">
+        <button class="btn btn-teamA" id="win-btn-A" onclick="awardPoint('A')"></button>
+        <button class="btn btn-teamB" id="win-btn-B" onclick="awardPoint('B')"></button>
+        <button class="btn btn-none" onclick="awardPoint(null)">🤷 محدش عرف</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- CELEBRATION OVERLAY -->
+<div id="celebration-overlay">
+  <div class="celebration-card">
+    <div class="celebration-emoji">🏆</div>
+    <div class="celebration-title" id="celebration-title">مبروك!</div>
+    <div class="celebration-sub" id="celebration-sub">الفريق الفلاني كسب اللعبة</div>
+    <div class="celebration-score" id="celebration-score"></div>
+    <div class="btn-row" style="margin-top:22px;">
+      <button class="btn" style="background:linear-gradient(135deg,var(--purple),#6D3FD9);" onclick="closeCelebration()">✨ تمام</button>
+      <button class="btn" style="background:linear-gradient(135deg,#3ED598,#1FAE7C);" onclick="forceNewGame()">🔄 لعبة جديدة</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const CATEGORY_POOLS = {
+  islamic: [
+    {q:"ما السورة التي ذُكرت فيها البسملة مرتين؟", a:"سورة النمل"},
+    {q:"صحابي لُقّب بـ«أمين هذه الأمة»، فمن هو؟", a:"أبو عبيدة عامر بن الجرّاح رضي الله عنه"},
+    {q:"أي نبي أُرسل إلى قوم عاد: صالح أم هود أم شعيب؟", a:"هود عليه السلام"},
+    {q:"صح أم خطأ: ورد اسم سيدنا محمد ﷺ صريحًا في القرآن خمس مرات؟", a:"خطأ؛ ورد اسم «محمد» أربع مرات، وورد اسم «أحمد» مرة واحدة"},
+    {q:"أكملي الحديث: «إنما الأعمال بـ...»", a:"النيّات"},
+    {q:"مين الصحابي اللي اقترح جمع القرآن بعد معركة اليمامة؟", a:"عمر بن الخطاب رضي الله عنه"},
+    {q:"ما الغزوة التي سُمّيت في القرآن «يوم الفرقان»؟", a:"غزوة بدر"},
+    {q:"نبي دعا قومه ألف سنة إلا خمسين عامًا، فمن هو؟", a:"نوح عليه السلام"},
+    {q:"ما السورة التي تبدأ بقَسَمٍ بالعصر: العصر أم الفجر أم الشمس؟", a:"سورة العصر"},
+    {q:"مين الصحابي اللي كُلّف بجمع القرآن في عهد أبي بكر الصديق؟", a:"زيد بن ثابت رضي الله عنه"},
+    {q:"صح أم خطأ: سورة التوبة هي السورة الوحيدة التي لا تبدأ بالبسملة؟", a:"صح"},
+    {q:"ما اسم الصلح الذي عُقد بين المسلمين وقريش في السنة السادسة للهجرة؟", a:"صلح الحديبية"},
+    {q:"صحابي عُرف بلقب «ذو النورين»، فمن هو؟", a:"عثمان بن عفان رضي الله عنه"},
+    {q:"أي نبي سأل الله أن يهب له مُلكًا لا ينبغي لأحد من بعده؟", a:"سليمان عليه السلام"},
+    {q:"أكملي الآية: «فإن مع العسر...»", a:"يسرًا"},
+    {q:"ما أول قبلة اتجه إليها المسلمون قبل الكعبة؟", a:"المسجد الأقصى"},
+    {q:"مين رفيق النبي ﷺ في رحلة الهجرة: عمر أم أبو بكر أم عثمان؟", a:"أبو بكر الصديق رضي الله عنه"},
+    {q:"في أي سنة هجرية فُرض صيام رمضان؟", a:"في السنة الثانية للهجرة"},
+    {q:"صحابية لُقّبت بـ«ذات النطاقين»، فمن هي؟", a:"أسماء بنت أبي بكر رضي الله عنها"},
+    {q:"ما اسم العام الذي توفيت فيه السيدة خديجة وأبو طالب؟", a:"عام الحزن"},
+    {q:"صح أم خطأ: سورة الفاتحة سبع آيات؟", a:"صح"},
+    {q:"مين أول سفير في الإسلام أرسله النبي ﷺ إلى المدينة قبل الهجرة؟", a:"مصعب بن عمير رضي الله عنه"},
+    {q:"أي سورة سُمّيت باسم امرأة: مريم أم النساء أم المجادلة؟", a:"سورة مريم"},
+    {q:"إيه اسم الغار الموضح في الصورة اللي اختبأ فيه النبي ﷺ وأبو بكر أثناء الهجرة؟", a:"غار ثور", img:"cave"},
+    {q:"نبي أُلقي في النار فجعلها الله عليه بردًا وسلامًا، فمن هو؟", a:"إبراهيم عليه السلام"},
+    {q:"ما الصلاة التي لا ركوع فيها ولا سجود؟", a:"صلاة الجنازة"},
+    {q:"أكملي: عدد الأشهر الحُرم هو ... أشهر", a:"أربعة أشهر"},
+    {q:"ما الأشهر الحُرم؟", a:"ذو القعدة، ذو الحجة، المحرم، ورجب"},
+    {q:"صح أم خطأ: كانت غزوة أُحد قبل غزوة بدر؟", a:"خطأ؛ بدر كانت قبل أُحد"},
+    {q:"ما السورة التي تبدأ بقوله تعالى: «تبارك الذي بيده الملك»؟", a:"سورة الملك"}
+  ],
+  science: [
+    {q:"ليه السماء بتبان زرقاء في النهار؟", a:"بسبب تشتت الضوء الأزرق في الغلاف الجوي أكثر من بقية الألوان"},
+    {q:"أي عضو يستهلك أكبر نسبة من طاقة الجسم وقت الراحة: الدماغ أم الكبد أم الجلد؟", a:"الدماغ"},
+    {q:"صح أم خطأ: الصوت ينتقل في الفراغ مثل الضوء؟", a:"خطأ؛ الصوت يحتاج إلى وسط مادي"},
+    {q:"إيه الفرق الأساسي بين الكتلة والوزن؟", a:"الكتلة مقدار المادة، أما الوزن فهو قوة جذب الجاذبية للجسم"},
+    {q:"غاز يشكل النسبة الأكبر من الغلاف الجوي للأرض، فمن أنا؟", a:"النيتروجين"},
+    {q:"ليه الجليد بيطفو على سطح الماء رغم إنه مادة صلبة؟", a:"لأن كثافته أقل من كثافة الماء السائل"},
+    {q:"أي جزء من الخلية يحتوي غالبًا على المادة الوراثية: النواة أم الغشاء أم السيتوبلازم؟", a:"النواة"},
+    {q:"أكملي: سرعة الضوء أكبر بكثير من سرعة ...", a:"الصوت"},
+    {q:"إيه الوظيفة الأساسية لخلايا الدم الحمراء؟", a:"نقل الأكسجين إلى أنسجة الجسم"},
+    {q:"صح أم خطأ: جميع البكتيريا ضارة للإنسان؟", a:"خطأ؛ كثير منها نافع أو غير ضار"},
+    {q:"إيه سبب تعاقب الليل والنهار؟", a:"دوران الأرض حول محورها"},
+    {q:"الكوكب في الصورة معروف بحلقاته الواضحة والكبيرة، فمين هو؟", a:"كوكب زحل", img:"saturn"},
+    {q:"ما الوحدة المستخدمة لقياس شدة التيار الكهربائي؟", a:"الأمبير"},
+    {q:"أي فيتامين بيصنّعه جلدنا لما نتعرض للشمس: C أم D أم K؟", a:"فيتامين D"},
+    {q:"ليه بنحس ببرودة لما العرق بيتبخر؟", a:"لأن التبخر يمتص حرارة من سطح الجلد"},
+    {q:"صح أم خطأ: الماء النقي بيغلي دايمًا عند 100 درجة مئوية في أي مكان؟", a:"خطأ؛ درجة الغليان تتغير باختلاف الضغط الجوي"},
+    {q:"إيه نوع الطاقة المخزنة في الطعام؟", a:"طاقة كيميائية"},
+    {q:"عضية خلوية تُعرف بمحطة طاقة الخلية، فمن أنا؟", a:"الميتوكوندريا"},
+    {q:"إيه العاملان الرئيسيان اللي بيحددوا كثافة المادة؟", a:"الكتلة والحجم"},
+    {q:"أي موجات لها تردد أعلى: الأشعة فوق البنفسجية أم الضوء الأحمر؟", a:"الأشعة فوق البنفسجية"},
+    {q:"ليه إحنا مش شايفين القمر مضيء بذاته؟", a:"لأنه لا يصدر ضوءًا؛ بل يعكس ضوء الشمس"},
+    {q:"صح أم خطأ: الزئبق هو الفلز الوحيد السائل في درجة حرارة الغرفة تقريبًا؟", a:"صح"},
+    {q:"إيه اسم العملية اللي بتحوّل بيها النباتات ضوء الشمس لطاقة كيميائية؟", a:"عملية البناء الضوئي"},
+    {q:"أكملي: الحمض بيحوّل ورقة تباع الشمس الزرقاء للون ...", a:"الأحمر"},
+    {q:"إيه الجهاز اللي بيقيس الضغط الجوي؟", a:"البارومتر"},
+    {q:"أيها أسرع في التوصيل الحراري عادة: المعادن أم الخشب؟", a:"المعادن"},
+    {q:"ليه شكل القمر بيتغيّر خلال الشهر زي ما موضح في الصورة؟", a:"بسبب تغيّر الجزء المضاء من القمر أثناء دورانه حول الأرض", img:"moonphases"},
+    {q:"صح أم خطأ: الوراثة وحدها بتحدد كل صفات الإنسان من غير تأثير للبيئة؟", a:"خطأ؛ كثير من الصفات تتأثر بالوراثة والبيئة معًا"},
+    {q:"إيه المقصود بالمادة المتعادلة كهربائيًا؟", a:"أن عدد الشحنات الموجبة يساوي عدد الشحنات السالبة فيها"},
+    {q:"أنا أصغر وحدة بتحتفظ بخواص العنصر الكيميائي، فمن أنا؟", a:"الذرة"}
+  ],
+  qatar: [
+    {q:"في أي تاريخ أعلنت دولة قطر استقلالها؟", a:"3 سبتمبر 1971"},
+    {q:"كام عدد المثلثات البيضاء في الخط المسنن على علم قطر الموضح بالصورة؟", a:"تسعة مثلثات", img:"flag"},
+    {q:"صح أم خطأ: اليوم الوطني لدولة قطر بيتحتفل بيه في 18 ديسمبر؟", a:"صح"},
+    {q:"إيه الموقع القطري المُدرج على قائمة التراث العالمي لليونسكو؟", a:"موقع الزبارة الأثري"},
+    {q:"مدينة قطرية تاريخية ازدهرت مركزًا لتجارة اللؤلؤ في القرنين الثامن عشر والتاسع عشر، فمن أنا؟", a:"الزبارة"},
+    {q:"إيه اللونان الأساسيان في علم دولة قطر؟", a:"العنابي والأبيض"},
+    {q:"قطر واقعة على شبه جزيرة بتمتد جوه: البحر الأحمر أم الخليج العربي أم بحر العرب؟", a:"الخليج العربي"},
+    {q:"إيه اسم الحقل اللي اكتُشف فيه النفط في قطر سنة 1940؟", a:"حقل دخان"},
+    {q:"صح أم خطأ: اللغة العربية هي اللغة الرسمية لدولة قطر؟", a:"صح"},
+    {q:"إيه اسم السوق التراثي الشهير في قلب الدوحة؟", a:"سوق واقف"},
+    {q:"ممشى ساحلي شهير بيمتد حوالين خليج الدوحة وتظهر منه أبراج المدينة، فمن أنا؟", a:"كورنيش الدوحة"},
+    {q:"إيه اسم القوارب الخشبية التقليدية المرتبطة بتاريخ قطر البحري؟", a:"المحامل أو قوارب الداو"},
+    {q:"قطر اشتهرت قديمًا بنشاط مرتبط بالصورة دي، إيه هو؟", a:"صيد اللؤلؤ", img:"pearl"},
+    {q:"إيه اسم المنطقة الطبيعية المعروفة بأشجار القرم شمال مدينة الخور؟", a:"محمية أو غابات الذخيرة للقرم"},
+    {q:"صح أم خطأ: موقع الزبارة الأثري اتسجّل على قائمة التراث العالمي سنة 2013؟", a:"صح"},
+    {q:"إيه اسم المتحف اللي صممه المعماري جان نوفيل على هيئة مستوحاة من وردة الصحراء؟", a:"متحف قطر الوطني"},
+    {q:"مؤسس دولة قطر اللي اليوم الوطني مرتبط بذكرى توليه الحكم، فمن هو؟", a:"الشيخ جاسم بن محمد بن ثاني"},
+    {q:"إيه المنطقة الزمنية المستخدمة في قطر بالنسبة لتوقيت غرينتش؟", a:"GMT+3"},
+    {q:"مناخ قطر في الأساس: استوائي ممطر أم صحراوي جاف أم قطبي؟", a:"صحراوي جاف"},
+    {q:"إيه اسم البحر الداخلي الشهير جنوب قطر والمحاط بالكثبان الرملية؟", a:"خور العديد"},
+    {q:"صح أم خطأ: قطر بترتبط بحد بري واحد بس؟", a:"صح"},
+    {q:"مع أي دولة قطر بتشترك في حدودها البرية؟", a:"المملكة العربية السعودية"},
+    {q:"جزيرة اصطناعية سكنية وتجارية شهيرة في الدوحة على شكل لؤلؤة، فمين هي؟", a:"اللؤلؤة - قطر"},
+    {q:"إيه اسم الحي الثقافي المعروف بالمسارح والمعارض والفنون في الدوحة؟", a:"كتارا – الحي الثقافي"},
+    {q:"أي لون بيتعرف محليًا في وصف علم قطر باسم «الأدعم»: العنابي أم الأخضر أم الأزرق؟", a:"العنابي"},
+    {q:"إيه اسم وسيلة النقل العامة الحديثة اللي بتربط مناطق رئيسية في الدوحة؟", a:"مترو الدوحة"},
+    {q:"صح أم خطأ: تاريخ 18 ديسمبر هو تاريخ إعلان استقلال قطر سنة 1971؟", a:"خطأ؛ الاستقلال أُعلن في 3 سبتمبر 1971، أما 18 ديسمبر فهو اليوم الوطني"},
+    {q:"إيه الرمز البحري اللي بيعكس ماضي قطر في التجارة وصيد اللؤلؤ وبيظهر كتير في الفعاليات التراثية؟", a:"المحمل الشراعي التقليدي"},
+    {q:"مدينة ساحلية قطرية شمال الدوحة ومشهورة بقربها من غابات القرم، فمن أنا؟", a:"الخور"},
+    {q:"إيه اسم النشيد الوطني لدولة قطر؟", a:"السلام الأميري"}
+  ],
+  general: [
+    {q:"إيه الدولة اللي فيها مدينة البتراء الأثرية؟", a:"الأردن"},
+    {q:"أي لغة هي الأكثر عددًا من حيث المتحدثين الأصليين: الإنجليزية أم الصينية المندرينية أم الإسبانية؟", a:"الصينية المندرينية"},
+    {q:"صح أم خطأ: قناة بنما بتوصل بين المحيط الأطلسي والمحيط الهادئ؟", a:"صح"},
+    {q:"مين مؤلف رواية «البؤساء»؟", a:"فيكتور هوغو"},
+    {q:"قارة مفيهاش دولة مستقلة ولا سكان دائمون، فمن أنا؟", a:"القارة القطبية الجنوبية"},
+    {q:"إيه العملة الرسمية لليابان؟", a:"الين"},
+    {q:"أي حضارة بنت مدينة ماتشو بيتشو: الإنكا أم الرومان أم الفراعنة؟", a:"حضارة الإنكا"},
+    {q:"إيه البحر اللي بيفصل بين أوروبا وإفريقيا؟", a:"البحر الأبيض المتوسط"},
+    {q:"صح أم خطأ: أستراليا دولة وقارة في نفس الوقت؟", a:"صح"},
+    {q:"إيه اللغة الرسمية في البرازيل؟", a:"البرتغالية"},
+    {q:"مدينة تُعرف بمدينة القنوات والجندول، فمين هي؟", a:"البندقية"},
+    {q:"الرسمة دي بتمثل لوحة فنية عالمية شهيرة جدًا، مين الفنان اللي رسمها؟", a:"ليوناردو دافينشي (لوحة الموناليزا)", img:"portrait"},
+    {q:"أي منظمة دولية مقرها الرئيسي في نيويورك: الأمم المتحدة أم اليونسكو أم محكمة العدل الدولية؟", a:"الأمم المتحدة"},
+    {q:"إيه أكبر جزيرة في العالم لو استثنينا القارات؟", a:"غرينلاند"},
+    {q:"صح أم خطأ: نهر النيل بيمر في مصر والسودان؟", a:"صح"},
+    {q:"إيه اسم الخط الوهمي اللي بيقسم الأرض لنصفين شمالي وجنوبي؟", a:"خط الاستواء"},
+    {q:"عاصمة أوروبية بيمر بيها نهر السين، فمن أنا؟", a:"باريس"},
+    {q:"إيه الفن الياباني القائم على طي الورق؟", a:"الأوريغامي"},
+    {q:"أي كتاب ألّفه ابن خلدون: المقدمة أم القانون في الطب أم كليلة ودمنة؟", a:"كتاب المقدمة"},
+    {q:"إيه الدولة المعروفة بأرض الشمس المشرقة؟", a:"اليابان"},
+    {q:"صح أم خطأ: مقر محكمة العدل الدولية موجود في لاهاي؟", a:"صح"},
+    {q:"إيه الاسم اللي بيتطلق على دراسة الخرائط وصناعتها؟", a:"علم الخرائط أو الكارتوغرافيا"},
+    {q:"آلة موسيقية ليها مفاتيح سوداء وبيضاء وأوتار جواها، فمن أنا؟", a:"البيانو"},
+    {q:"إيه أكبر صحراء حارة في العالم؟", a:"الصحراء الكبرى"},
+    {q:"إيه اسم القارة اللي فيها أكبر عدد من الدول؟", a:"إفريقيا"},
+    {q:"صح أم خطأ: اللغة الإسبانية هي اللغة الرسمية الوحيدة في كل دول أمريكا الجنوبية؟", a:"خطأ؛ توجد لغات رسمية أخرى مثل البرتغالية في البرازيل"},
+    {q:"إيه المضيق اللي بيفصل بين آسيا وأمريكا الشمالية؟", a:"مضيق بيرينغ"},
+    {q:"كاتب عربي حاصل على جائزة نوبل في الأدب سنة 1988، فمين هو؟", a:"نجيب محفوظ"},
+    {q:"إيه اسم النظام اللي الدول بتستخدم فيه خطوط الطول لتحديد فروق الوقت؟", a:"المناطق الزمنية"}
+  ]
+};
+
+const IMAGES = {
+  cave: `<svg viewBox="0 0 200 160" xmlns="http://www.w3.org/2000/svg">
+    <rect width="200" height="160" fill="#1E2A4A"/>
+    <circle cx="165" cy="30" r="14" fill="#FFE8A3"/>
+    <circle cx="40" cy="25" r="2" fill="#fff" opacity="0.8"/>
+    <circle cx="70" cy="15" r="1.6" fill="#fff" opacity="0.7"/>
+    <circle cx="120" cy="20" r="1.8" fill="#fff" opacity="0.7"/>
+    <polygon points="0,160 60,55 100,110 130,50 200,160" fill="#5B4A3E"/>
+    <polygon points="0,160 60,55 90,105 60,160" fill="#4A3B31"/>
+    <ellipse cx="70" cy="115" rx="20" ry="26" fill="#141013"/>
+    <ellipse cx="70" cy="118" rx="13" ry="18" fill="#0a080a"/>
+  </svg>`,
+  saturn: `<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg">
+    <rect width="200" height="140" fill="#241C42"/>
+    <circle cx="150" cy="30" r="2" fill="#fff" opacity="0.8"/>
+    <circle cx="30" cy="100" r="1.6" fill="#fff" opacity="0.7"/>
+    <circle cx="170" cy="90" r="1.8" fill="#fff" opacity="0.7"/>
+    <circle cx="50" cy="30" r="1.6" fill="#fff" opacity="0.6"/>
+    <ellipse cx="100" cy="72" rx="62" ry="16" fill="none" stroke="#D9B98A" stroke-width="6" opacity="0.9"/>
+    <circle cx="100" cy="70" r="34" fill="#E0BE8C"/>
+    <ellipse cx="100" cy="72" rx="62" ry="16" fill="none" stroke="#F3DDB5" stroke-width="2"/>
+  </svg>`,
+  moonphases: `<svg viewBox="0 0 260 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="260" height="100" fill="#171233"/>
+    <circle cx="30" cy="20" r="1.6" fill="#fff" opacity="0.7"/>
+    <circle cx="230" cy="15" r="1.8" fill="#fff" opacity="0.7"/>
+    <circle cx="130" cy="12" r="1.4" fill="#fff" opacity="0.6"/>
+    <circle cx="30" cy="55" r="15" fill="#241C42" stroke="#5B4E8C" stroke-width="1.5"/>
+    <path d="M60 40 a15 15 0 0 1 0 30 a10 15 0 0 0 0 -30" fill="#EDE6D6"/>
+    <circle cx="100" cy="55" r="15" fill="#EDE6D6"/>
+    <path d="M100 40 a15 15 0 0 1 0 30 z" fill="#241C42"/>
+    <circle cx="140" cy="55" r="15" fill="#EDE6D6"/>
+    <circle cx="180" cy="55" r="15" fill="#EDE6D6"/>
+    <path d="M180 40 a15 15 0 0 0 0 30 a10 15 0 0 1 0 -30" fill="#241C42"/>
+    <circle cx="220" cy="55" r="15" fill="#241C42" stroke="#5B4E8C" stroke-width="1.5"/>
+  </svg>`,
+  flag: `<svg viewBox="0 0 150 120" xmlns="http://www.w3.org/2000/svg">
+    <rect width="150" height="120" fill="#8A1538"/>
+    <polygon points="0,0 55,6.7 20,13.3 55,20 20,26.7 55,33.3 20,40 55,46.7 20,53.3 55,60 20,66.7 55,73.3 20,80 55,86.7 20,93.3 55,100 20,106.7 55,113.3 0,120" fill="#ffffff"/>
+  </svg>`,
+  pearl: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
+    <rect width="200" height="150" fill="#BFEAF5"/>
+    <path d="M40 95 C 40 60, 90 45, 100 75 C 110 45, 160 60, 160 95 C 130 115, 70 115, 40 95 Z" fill="#B8AFA3"/>
+    <path d="M45 92 C 45 70, 85 58, 100 78 C 115 58, 155 70, 155 92 C 128 105, 72 105, 45 92 Z" fill="#D8CFC0"/>
+    <circle cx="100" cy="85" r="16" fill="#FFF8ED"/>
+    <circle cx="94" cy="79" r="5" fill="#ffffff" opacity="0.8"/>
+    <circle cx="30" cy="30" r="3" fill="#ffffff" opacity="0.7"/>
+    <circle cx="170" cy="40" r="2.5" fill="#ffffff" opacity="0.7"/>
+    <circle cx="150" cy="20" r="2" fill="#ffffff" opacity="0.6"/>
+  </svg>`,
+  portrait: `<svg viewBox="0 0 160 200" xmlns="http://www.w3.org/2000/svg">
+    <rect width="160" height="200" fill="#C99B4A"/>
+    <rect x="10" y="10" width="140" height="180" fill="#F2E3C6"/>
+    <ellipse cx="80" cy="90" rx="34" ry="42" fill="#C79A78"/>
+    <path d="M50 150 C 55 120, 105 120, 110 150 L 110 185 L 50 185 Z" fill="#6E4A6B"/>
+    <path d="M64 92 Q 80 104 96 92" stroke="#4A2E2A" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <circle cx="66" cy="80" r="2.5" fill="#4A2E2A"/>
+    <circle cx="94" cy="80" r="2.5" fill="#4A2E2A"/>
+  </svg>`
+};
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+// طابور لكل تصنيف بيتلخبط، وكل جولة بناخد ٨ منه؛ لو خلص نرجع نخلط التصنيف كله من جديد
+const CATEGORY_KEYS = ['islamic','science','qatar','general'];
+let categoryQueues = {};
+CATEGORY_KEYS.forEach(cat=>{ categoryQueues[cat] = []; });
+
+function refillIfNeeded(cat){
+  if(categoryQueues[cat].length < 8){
+    categoryQueues[cat] = shuffle(CATEGORY_POOLS[cat]);
+  }
+}
+
+function drawRound(){
+  const picked = [];
+  CATEGORY_KEYS.forEach(cat=>{
+    refillIfNeeded(cat);
+    const eight = categoryQueues[cat].splice(0, 8);
+    eight.forEach(item=> picked.push({...item, cat}));
+  });
+  return shuffle(picked).map((item, idx)=>({...item, n: idx+1}));
+}
+
+// باليتة ألوان بناتي عشوائية للفقاعات (مش مرتبطة بأي تصنيف)
+const BUBBLE_COLORS = [
+  "linear-gradient(150deg,#FF6FB0,#E8407F)",
+  "linear-gradient(150deg,#9B7BFF,#7A4FE0)",
+  "linear-gradient(150deg,#2EC4B6,#1E9E92)",
+  "linear-gradient(150deg,#FFC24D,#FF9B1C)",
+  "linear-gradient(150deg,#5FD3FF,#2E9FD9)",
+  "linear-gradient(150deg,#FF8A8A,#E8505B)",
+  "linear-gradient(150deg,#B983FF,#8A4FE0)",
+  "linear-gradient(150deg,#4DE0C0,#1EA890)",
+  "linear-gradient(150deg,#FFA6D9,#E8579E)",
+  "linear-gradient(150deg,#FFD166,#FF9F1C)"
+];
+
+let QUESTIONS = [];
+let bubbleColorMap = {};
+
+function newRound(){
+  QUESTIONS = drawRound();
+  bubbleColorMap = {};
+  QUESTIONS.forEach(item=>{
+    bubbleColorMap[item.n] = BUBBLE_COLORS[Math.floor(Math.random()*BUBBLE_COLORS.length)];
+  });
+}
+
+let solvedBy = {};   // { n : 'A' | 'B' | 'none' }
+let scores = {A:0, B:0};
+let current = null;
+
+const arabicNums = ["","١","٢","٣","٤","٥","٦","٧","٨","٩","١٠","١١","١٢","١٣","١٤","١٥","١٦","١٧","١٨","١٩","٢٠","٢١","٢٢","٢٣","٢٤","٢٥","٢٦","٢٧","٢٨","٢٩","٣٠","٣١","٣٢"];
+
+function teamName(t){
+  return document.getElementById('team'+t+'-name').value.trim() || (t==='A' ? 'الفريق الوردي' : 'الفريق البنفسجي');
+}
+
+function renderScores(){
+  document.getElementById('teamA-score').textContent = scores.A;
+  document.getElementById('teamB-score').textContent = scores.B;
+  document.getElementById('teamA-card').classList.toggle('leading', scores.A > scores.B);
+  document.getElementById('teamB-card').classList.toggle('leading', scores.B > scores.A);
+}
+
+function adjustScore(team, delta){
+  scores[team] = Math.max(0, scores[team] + delta);
+  renderScores();
+}
+
+function renderGrid(){
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+  QUESTIONS.forEach(item=>{
+    const b = document.createElement('button');
+    const who = solvedBy[item.n];
+    if(who){
+      b.className = 'bubble solved ' + (who==='none' ? 'solved-none' : 'solved-'+who);
+      b.innerHTML = arabicNums[item.n] + '<span class="check">✓</span>';
+    } else {
+      b.className = 'bubble';
+      b.style.background = bubbleColorMap[item.n];
+      b.innerHTML = arabicNums[item.n];
+    }
+    b.onclick = ()=> openQuestion(item.n);
+    grid.appendChild(b);
+  });
+  const solvedCount = Object.keys(solvedBy).length;
+  const pct = Math.round((solvedCount/32)*100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = solvedCount + " / 32";
+}
+
+function openQuestion(n){
+  current = n;
+  const item = QUESTIONS.find(q=>q.n===n);
+  document.getElementById('q-num').textContent = "سؤال رقم " + arabicNums[n];
+  document.getElementById('q-text').textContent = item.q;
+  document.getElementById('answer-text').textContent = item.a;
+
+  const imgBox = document.getElementById('q-image');
+  if(item.img && IMAGES[item.img]){
+    imgBox.innerHTML = IMAGES[item.img];
+    imgBox.style.display = 'block';
+  } else {
+    imgBox.innerHTML = '';
+    imgBox.style.display = 'none';
+  }
+
+  document.getElementById('mini-A').textContent = teamName('A') + ': ' + scores.A;
+  document.getElementById('mini-B').textContent = teamName('B') + ': ' + scores.B;
+
+  document.getElementById('win-btn-A').textContent = '🏆 نقطة لـ ' + teamName('A');
+  document.getElementById('win-btn-B').textContent = '🏆 نقطة لـ ' + teamName('B');
+
+  document.getElementById('answer-box').style.display = 'none';
+  document.getElementById('reveal-row').style.display = 'flex';
+  document.getElementById('win-row').style.display = 'none';
+
+  document.getElementById('home-screen').style.display = 'none';
+  document.getElementById('question-screen').style.display = 'block';
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function revealAnswer(){
+  document.getElementById('answer-box').style.display = 'block';
+  document.getElementById('reveal-row').style.display = 'none';
+  document.getElementById('win-row').style.display = 'flex';
+}
+
+function awardPoint(team){
+  if(team === 'A' || team === 'B'){
+    scores[team] += 10;
+    solvedBy[current] = team;
+    launchConfetti(team);
+  } else {
+    solvedBy[current] = 'none';
+  }
+  renderScores();
+  const allDone = Object.keys(solvedBy).length === QUESTIONS.length;
+  setTimeout(()=>{
+    goHome();
+    if(allDone) setTimeout(showCelebration, 400);
+  }, 500);
+}
+
+function showCelebration(){
+  const nameA = teamName('A'), nameB = teamName('B');
+  const title = document.getElementById('celebration-title');
+  const sub = document.getElementById('celebration-sub');
+  const scoreLine = document.getElementById('celebration-score');
+  const emoji = document.querySelector('.celebration-emoji');
+
+  if(scores.A === scores.B){
+    emoji.textContent = '🤝';
+    title.textContent = 'تعادل رهيب!';
+    sub.textContent = nameA + ' و' + nameB + ' لعبوا زي الأبطال!';
+    launchConfetti('A');
+    launchConfetti('B');
+  } else {
+    const winner = scores.A > scores.B ? nameA : nameB;
+    const winTeam = scores.A > scores.B ? 'A' : 'B';
+    emoji.textContent = '🏆';
+    title.textContent = 'مبروك يا ' + winner + '! 🎉';
+    sub.textContent = 'فريقكم كسب اللعبة، عاشت الأبطال!';
+    launchConfetti(winTeam);
+    setTimeout(()=>launchConfetti(winTeam), 300);
+  }
+  scoreLine.textContent = nameA + ': ' + scores.A + '   •   ' + nameB + ': ' + scores.B;
+  document.getElementById('celebration-overlay').classList.add('show');
+}
+
+function closeCelebration(){
+  document.getElementById('celebration-overlay').classList.remove('show');
+}
+
+function forceNewGame(){
+  closeCelebration();
+  newRound();
+  solvedBy = {};
+  scores = {A:0, B:0};
+  renderGrid();
+  renderScores();
+}
+
+function goHome(){
+  document.getElementById('question-screen').style.display = 'none';
+  document.getElementById('home-screen').style.display = 'block';
+  renderGrid();
+  renderScores();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+let resetArmed = false;
+function resetGame(){
+  const btn = document.getElementById('reset-btn-el');
+  if(!resetArmed){
+    resetArmed = true;
+    btn.textContent = '⚠️ اضغطي تاني للتأكيد';
+    setTimeout(()=>{ resetArmed = false; btn.textContent = '🔄 لعبة جديدة (تصفير كل حاجة)'; }, 3000);
+    return;
+  }
+  resetArmed = false;
+  btn.textContent = '🔄 لعبة جديدة (تصفير كل حاجة)';
+  newRound();
+  solvedBy = {};
+  scores = {A:0, B:0};
+  renderGrid();
+  renderScores();
+}
+
+function launchConfetti(team){
+  const colors = team==='A' ? ['#FF5FA2','#FFC24D','#FFB6D9'] : ['#7A4FE0','#20B8A6','#C9B6FF'];
+  for(let i=0;i<40;i++){
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = Math.random()*100 + 'vw';
+    c.style.background = colors[Math.floor(Math.random()*colors.length)];
+    c.style.animationDuration = (2 + Math.random()*1.5) + 's';
+    c.style.opacity = 0.85;
+    document.body.appendChild(c);
+    setTimeout(()=>c.remove(), 3600);
+  }
+}
+
+newRound();
+renderGrid();
+renderScores();
+</script>
+</body>
+</html>
